@@ -26,7 +26,7 @@ model = Sequential([
 
 # ✅ Load weights
 try:
-    model.load_weights('model(1).h5')
+    model.load_weights('model (1).h5')
 except Exception as e:
     st.error(f"❌ Could not load model weights: {e}")
     st.stop()
