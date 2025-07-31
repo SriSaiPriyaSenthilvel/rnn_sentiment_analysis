@@ -12,7 +12,7 @@ with st.sidebar:
 
 # ✅ Try loading model safely
 try:
-    model = tf.keras.models.load_model('model.h5')
+    model = tf.keras.models.load_model('model(1).h5')
 except TypeError:
     st.error("❌ Error loading model. It may contain custom layers or only saved weights. Please check how you saved it.")
     st.stop()
