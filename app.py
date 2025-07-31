@@ -1,6 +1,8 @@
 import streamlit as st
 import tensorflow as tf
 import pickle
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Embedding, LSTM, Dense
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from PIL import Image
 
@@ -10,19 +12,28 @@ with st.sidebar:
     st.title("Navigation")
     st.markdown("Use this app to analyze sentiment in movie reviews!")
 
-# ✅ Try loading model safely
+# Constants
+VOCAB_SIZE = 10000   # use the same as during training
+EMBEDDING_DIM = 128
+MAX_LEN = 200
+
+# ✅ Rebuild the model architecture (same as training)
+model = Sequential([
+    Embedding(input_dim=VOCAB_SIZE, output_dim=EMBEDDING_DIM, input_length=MAX_LEN),
+    LSTM(64),
+    Dense(1, activation='sigmoid')
+])
+
+# ✅ Load weights
 try:
-    model = tf.keras.models.load_model('model(1).h5')
-except TypeError:
-    st.error("❌ Error loading model. It may contain custom layers or only saved weights. Please check how you saved it.")
+    model.load_weights('model(1).h5')
+except Exception as e:
+    st.error(f"❌ Could not load model weights: {e}")
     st.stop()
 
 # Load tokenizer
 with open('tokenizer.pkl', 'rb') as handle:
     tokenizer = pickle.load(handle)
-
-# Constants
-MAX_LEN = 200
 
 # App title and subheader
 st.markdown('<h1 style="font-size: 36px; font-weight: bold;">🎬 Movie Review Sentiment Analyzer</h1>', unsafe_allow_html=True)
