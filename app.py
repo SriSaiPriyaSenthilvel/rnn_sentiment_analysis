@@ -6,13 +6,18 @@ from PIL import Image
 
 # Sidebar with logo and navigation
 with st.sidebar:
-    st.image("logos.png", width=800)  # Make sure 'logo.png' is in your working directory
+    st.image("logos.png", width=800)
     st.title("Navigation")
     st.markdown("Use this app to analyze sentiment in movie reviews!")
 
-# Load model and tokenizer
-model = tf.keras.models.load_model('model.h5')
+# ✅ Try loading model safely
+try:
+    model = tf.keras.models.load_model('model.h5')
+except TypeError:
+    st.error("❌ Error loading model. It may contain custom layers or only saved weights. Please check how you saved it.")
+    st.stop()
 
+# Load tokenizer
 with open('tokenizer.pkl', 'rb') as handle:
     tokenizer = pickle.load(handle)
 
