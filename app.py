@@ -1,56 +1,84 @@
 import streamlit as st
 import tensorflow as tf
-import pickle
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Embedding, SimpleRNN, Dense
 from tensorflow.keras.preprocessing.sequence import pad_sequences
-from PIL import Image
+import pickle
 
-# Sidebar
-with st.sidebar:
-    st.image("logos.png", width=250)
-    st.title("Navigation")
-    st.markdown("Use this app to analyze sentiment in movie reviews!")
+# Custom style with navbar logo
+def set_style():
+    st.markdown("""
+        <style>
+        /* Simulated Navbar with logo */
+        .navbar-logo {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 9999;
+        }
 
-# Constants (must match training)
-VOCAB_SIZE = 5000
-EMBEDDING_DIM = 128
-MAX_LEN = 200
+        .stApp {
+            padding-top: 60px;
+            background-color: #1e1e1e;
+            color: white !important;
+            font-weight: bold !important;
+        }
 
-# ✅ Rebuild model architecture
-model = Sequential([
-    Embedding(input_dim=VOCAB_SIZE, output_dim=EMBEDDING_DIM, input_length=MAX_LEN),
-    SimpleRNN(128, dropout=0.2, recurrent_dropout=0.2),
-    Dense(1, activation='sigmoid')
-])
+        .title-text {
+            color: white !important;
+            font-size: 36px;
+            font-weight: bold;
+            text-shadow: 2px 2px 5px black;
+        }
 
-# ✅ Load only weights
-try:
-    model.load_weights('model (1).h5')  # Or rename to 'model.h5' if needed
-except Exception as e:
-    st.error(f"❌ Could not load model weights: {e}")
-    st.stop()
+        .stTextArea textarea {
+            color: white !important;
+            font-weight: bold !important;
+            background-color: rgba(0,0,0,0.6);
+        }
 
-# Load tokenizer
-with open('tokenizer.pkl', 'rb') as handle:
+        .stButton>button {
+            font-weight: bold !important;
+        }
+
+        .stSuccess, .stInfo {
+            color: white !important;
+            font-weight: bold !important;
+        }
+        </style>
+
+        <!-- Navbar Logo -->
+        <div class="navbar-logo">
+            <img src="logos.png" width="50">
+        </div>
+        """, unsafe_allow_html=True)
+
+# Load tokenizer and model
+model = tf.keras.models.load_model("model.h5")
+with open("tokenizer.pkl", "rb") as handle:
     tokenizer = pickle.load(handle)
 
-# UI Title
-st.markdown('<h1 style="font-size: 36px; font-weight: bold;">🎬 Movie Review Sentiment Analyzer</h1>', unsafe_allow_html=True)
-st.subheader("Enter a movie review to predict its sentiment:")
+# Constants
+MAX_LEN = 200
 
-# Input and prediction
-user_input = st.text_area("Your Review:")
+# Set style with navbar
+set_style()
 
-if st.button("Predict Sentiment"):
+# Title
+st.markdown('<h1 class="title-text">🎬 Movie Review Sentiment Analyzer</h1>', unsafe_allow_html=True)
+
+# Input box
+st.markdown('<label style="color:white; font-weight:bold; font-size:18px;">📝 Enter a movie review:</label>', unsafe_allow_html=True)
+user_input = st.text_area(label="", height=150)
+
+# Prediction
+if st.button("🔍 Analyze"):
     if user_input.strip() == "":
-        st.warning("⚠️ Please enter a review.")
+        st.warning("⚠️ Please enter some text.")
     else:
         sequence = tokenizer.texts_to_sequences([user_input])
-        padded = pad_sequences(sequence, maxlen=MAX_LEN, padding='post')
+        padded = pad_sequences(sequence, maxlen=MAX_LEN)
         prediction = model.predict(padded)[0][0]
-        sentiment = "🌟 Positive 😊" if prediction >= 0.5 else "💔 Negative 😞"
 
+        sentiment = "🌟 Positive 😊" if prediction >= 0.5 else "💔 Negative 😞"
         st.success(f"**Predicted Sentiment:** {sentiment}")
         st.info(f"🧠 Model Confidence: `{prediction:.2f}`")
 
