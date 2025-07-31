@@ -11,7 +11,7 @@ with st.sidebar:
     st.markdown("Use this app to analyze sentiment in movie reviews!")
 
 # Load model and tokenizer
-model = tf.keras.models.load_model('model.h5', compile=False)
+model = tf.keras.models.load_model('model.h5')
 
 with open('tokenizer.pkl', 'rb') as handle:
     tokenizer = pickle.load(handle)
